@@ -41,8 +41,8 @@ def controller_connect():
 @socketio.on('move',namespace='/controller')
 def handle_controller_move_message(data):
   logger.debug('received move message: ' + str(data))
-  d = json.load(data)
-  controller.move(d)
+  #d = json.loads(data)
+  controller.move(data)
 
 @socketio.on('stop',namespace='/controller')
 def handle_controller_stop_message(data):
