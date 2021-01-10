@@ -22,21 +22,21 @@ class Controller:
       newmove="LEFT"
     elif data['data']['right']:
       newmove="RIGHT"
-
-    # if different than last instruction update the move command
-    if self.lastmove == None:
-      self.logger.debug('starting new move')
-      self.lastmove=newmove
-      self.performMove(newmove)
-    else:
-      self.logger.debug('update move command if needed')
-      if self.lastmove==newmove:
-        return
-      else:
+    if newmove !=None:  
+      # if different than last instruction update the move command
+      if self.lastmove == None:
+        self.logger.debug('starting new move')
+        self.lastmove=newmove
         self.performMove(newmove)
+      else:
+        self.logger.debug('update move command if needed')
+        if self.lastmove==newmove:
+          return
+        else:
+          self.performMove(newmove)
 
   def performMove(self, move):
-    self.logger.debug('perform move '+move)
+    self.logger.info('perform move '+ move)
     if move == "FORWARD":
       self.logger.debug('move tank forward')    
       self.tpi.forward()
@@ -51,6 +51,6 @@ class Controller:
       self.tpi.right()
 
   def stop(self):
-    self.logger.debug('stop the tank')
+    self.logger.info('stop the tank')
     self.lastmove=None
     self.tpi.stop()
