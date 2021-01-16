@@ -2,8 +2,8 @@
 
 from flask_socketio import SocketIO, emit
 from flask import Flask, render_template, url_for, copy_current_request_context
-from threading import Thread, Event
-from tank.controller import Controller
+#from tank.controller import Controller
+from tank.camera import ImageCapture
 import logging
 import sys
 import json
@@ -13,7 +13,8 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-controller = Controller()
+#controller = Controller()
+imageCaptureThread=None
 
 #turn the flask app into a socketio app
 socketio = SocketIO(app)
@@ -21,35 +22,36 @@ socketio = SocketIO(app)
 @app.route('/')
 def mainRoute():
   logger.debug("main route")
-  return render_template('joystick.html')
+  return render_template('debug.html')
 
 @app.route('/joystick')
 def joystickRoute():
   logger.debug("joystick route")
-  return render_template('debug.html')
+  return render_template('joystick.html')
 
 @app.route('/dashboard')
 def dashboardRoute():
-  logg.debug("dashboard route")
+  logger.debug("dashboard route")
   return render_template('dashboard.html')
 
-@socketio.on('connect', namespace='/controller')
+@socketio.on('connect')
 def controller_connect():
-  # need visibility of the global thread object
   logger.debug('Controller client connected')
+  imageCaptureThread = ImageCapture(socketio)
+  imageCaptureThread.run()
 
-@socketio.on('move',namespace='/controller')
+@socketio.on('move')
 def handle_controller_move_message(data):
   logger.debug('received move message: ' + str(data))
   #d = json.loads(data)
   controller.move(data)
 
-@socketio.on('stop',namespace='/controller')
+@socketio.on('stop')
 def handle_controller_stop_message(data):
   logger.debug('received stop message')
   controller.stop()
 
-@socketio.on('disconnect', namespace='/controller')
+@socketio.on('disconnect')
 def controller_disconnect():
   logger.debug('Controller client disconnected')
   controller.stop()

@@ -2,6 +2,8 @@
 	<head>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<!-- Bootstrap core CSS -->
+		<link href="static/bootstrap/css/bootstrap.min.css" rel="stylesheet">
 		
 		<style>
 		body {
@@ -10,21 +12,13 @@
 			margin		: 0;
 			background-color: #BBB;
 		}
-		#info {
-			position	: absolute;
-			top		: 0px;
+		#images {
 			width		: 100%;
-			padding		: 5px;
-			text-align	: center;
+			height		: 50%;
+			overflow	: hidden;
+			background-color: rgb(255, 250, 250);
 		}
-		#info a {
-			color		: #66F;
-			text-decoration	: none;
-		}
-		#info a:hover {
-			text-decoration	: underline;
-		}
-		#container {
+		#joystick {
 			width		: 100%;
 			height		: 100%;
 			overflow	: hidden;
@@ -36,15 +30,31 @@
 		</style>
 	</head>
 	<body>
-		<div id="container"></div>
+		<nav class="navbar navbar-dark sticky-top bg-dark flex-md-nowrap p-0 shadow">
+			<a class="navbar-brand col-md-3 col-lg-2 mr-0 px-3" href="#">Devastator Tank</a>
+		</nav>
+
+		<div class="container mh-100 mw-100">
+			<div class="row h-100 w-100">		
+				<div class="col h-100">
+					<div id="joystick"></div>
+				</div>
+				<div class="col w-100">
+					<div id="images"></div>
+				</div>
+			</div>
+		</div>
+
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW" crossorigin="anonymous"></script>
 		<script src="https://cdn.socket.io/socket.io-3.0.4.min.js"></script>
 		<script src="static/user/js/virtualjoystick.js"></script>
 		<script>
 			console.log("touchscreen is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
-			var socket = io.connect('ws://' + document.domain + ':' + location.port + '/controller');
+			var socket = io.connect('ws://' + document.domain + ':' + location.port );
 	        var touch = false
+
 			var joystick	= new VirtualJoystick({
-				container	: document.getElementById('container'),
+				container	: document.getElementById('joystick'),
 				mouseSupport	: true,
 			});
 			joystick.addEventListener('touchStart', function(){
@@ -56,12 +66,31 @@
 				socket.emit('stop', {data: 'I\'m ending!'});
 				touch=false
 			})
+			joystick.addEventListener('mouseDown', function(){
+				console.log('start')
+				touch=true
+			})
+			joystick.addEventListener('mouseUp', function(){
+				console.log('end')
+				socket.emit('stop', {data: 'I\'m ending!'});
+				touch=false
+			})
 
 			setInterval(function(){
 				if (touch){
 					socket.emit('move',{data:{ 'up': joystick.up(),'down': joystick.down(), 'left': joystick.left(), 'right': joystick.right() }})
 				}
 			}, 1/30 * 1000);
+
+			// var ctx = document.getElementById('canvas').getContext('2d');
+			socket.on('image', (data) => {
+			  console.log(data);
+			  console.log("received image");
+			//   var img = new Image();
+			  img=document.getElementById('images')
+			  img.src = 'data:image/jpeg;base64,' + data.buffer;
+			//   ctx.drawImage(img, 0, 0);
+			});
 		</script>
 	</body>
 </html>
