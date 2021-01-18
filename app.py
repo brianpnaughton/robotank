@@ -15,7 +15,8 @@ app = Flask(__name__)
 
 #controller = Controller()
 imageCapture=ImageCapture()
-imageCaptureThread=None
+sendImageThread = None
+numClients=0
 
 #turn the flask app into a socketio app
 socketio = SocketIO(app,logger=True,engine_logger=True,async_mode='gevent')
@@ -36,23 +37,27 @@ def dashboardRoute():
   return render_template('dashboard.html')
 
 def sendImage():
-  logger.debug('getting image from camera')
-  while True:
-    image=imageCapture.getNextEncodedImage()
+  logger.debug('sending images from camera')
+  global numClients
+  while numClients>0:
+    image=imageCapture.getEncodedImage()
     logger.debug('sending image to client')
     if image is not None:
       socketio.emit('image', image, broadcast=True)
       socketio.sleep(1)
     else:
-      logger.debug('null image')
+      logger.debug('null image from camera')
+  logger.debug('finished send image thread')
 
 @socketio.on('connect')
 def controller_connect():
   logger.debug('Controller client connected')
-  global imageCaptureThread
-  if imageCaptureThread is None:
-    logger.debug('starting image thread')
-    imageCaptureThread = socketio.start_background_task(target=sendImage)
+  global numClients
+  numClients += 1
+  global sendImageThread
+  if (sendImageThread is None) and (numClients > 0):
+    logger.debug('starting send image thread')
+    sendImageThread = socketio.start_background_task(target=sendImage)
  
 @socketio.on('move')
 def handle_controller_move_message(data):
@@ -67,8 +72,14 @@ def handle_controller_stop_message(data):
 @socketio.on('disconnect')
 def controller_disconnect():
   logger.debug('Controller client disconnected')
+  global numClients
+  numClients -= 1
+  global sendImageThread
+  if (numClients == 0) and (sendImageThread is not None):
+    sendImageThread = None
 #  controller.stop()
 
 if __name__ == "__main__":
   logger.info('Starting socketio')
+  imageCapture.start()
   socketio.run(app, host='0.0.0.0', port=5000)
