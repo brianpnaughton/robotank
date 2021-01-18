@@ -40,7 +40,7 @@
 					<div id="joystick"></div>
 				</div>
 				<div class="col w-100">
-					<div id="images"></div>
+					<img id="images" src="">
 				</div>
 			</div>
 		</div>
@@ -50,7 +50,15 @@
 		<script src="static/user/js/virtualjoystick.js"></script>
 		<script>
 			console.log("touchscreen is", VirtualJoystick.touchScreenAvailable() ? "available" : "not available");
-			var socket = io.connect('ws://' + document.domain + ':' + location.port );
+			var socket = io.connect('ws://' + document.domain + ':' + location.port +'/');
+			
+			console.log('start listening for images')
+			socket.on('image', function(data) {
+			  console.log("received image");
+			  img=document.getElementById('images')
+			  img.src = 'data:image/jpeg;base64,' + data;
+			});
+			
 	        var touch = false
 
 			var joystick	= new VirtualJoystick({
@@ -82,15 +90,7 @@
 				}
 			}, 1/30 * 1000);
 
-			// var ctx = document.getElementById('canvas').getContext('2d');
-			socket.on('image', (data) => {
-			  console.log(data);
-			  console.log("received image");
-			//   var img = new Image();
-			  img=document.getElementById('images')
-			  img.src = 'data:image/jpeg;base64,' + data.buffer;
-			//   ctx.drawImage(img, 0, 0);
-			});
+
 		</script>
 	</body>
 </html>
