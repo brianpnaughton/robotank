@@ -13,23 +13,18 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__)
 
-#controller = Controller()
+controller = Controller()
 imageCapture=ImageCapture()
 sendImageThread = None
 numClients=0
 
 #turn the flask app into a socketio app
-socketio = SocketIO(app,logger=True,engine_logger=True,async_mode='gevent')
+socketio = SocketIO(app,async_mode='gevent')
 
 @app.route('/')
 def mainRoute():
   logger.debug("main route")
-  return render_template('debug.html')
-
-@app.route('/joystick')
-def joystickRoute():
-  logger.debug("joystick route")
-  return render_template('joystick.html')
+  return render_template('control.html')
 
 @app.route('/dashboard')
 def dashboardRoute():
@@ -44,7 +39,7 @@ def sendImage():
     logger.debug('sending image to client')
     if image is not None:
       socketio.emit('image', image, broadcast=True)
-      socketio.sleep(1)
+      socketio.sleep(0.05)
     else:
       logger.debug('null image from camera')
   logger.debug('finished send image thread')
@@ -62,12 +57,12 @@ def controller_connect():
 @socketio.on('move')
 def handle_controller_move_message(data):
   logger.debug('received move message: ' + str(data))
-#  controller.move(data)
+  controller.move(data)
 
 @socketio.on('stop')
 def handle_controller_stop_message(data):
   logger.debug('received stop message')
-#  controller.stop()
+  controller.stop()
 
 @socketio.on('disconnect')
 def controller_disconnect():
@@ -77,7 +72,7 @@ def controller_disconnect():
   global sendImageThread
   if (numClients == 0) and (sendImageThread is not None):
     sendImageThread = None
-#  controller.stop()
+  controller.stop()
 
 if __name__ == "__main__":
   logger.info('Starting socketio')

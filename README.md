@@ -12,4 +12,7 @@ This project provides software that remotely controls a Devastator tank with the
 * [pi camera mount]
 
 python3 -m pip install -r requirements.txt
+
 Install Opencv
+
+pip3 install https://github.com/google-coral/pycoral/releases/download/release-frogfish/tflite_runtime-2.5.0-cp37-cp37m-linux_armv7l.whl

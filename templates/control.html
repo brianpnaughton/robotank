@@ -54,7 +54,6 @@
 			
 			console.log('start listening for images')
 			socket.on('image', function(data) {
-			  console.log("received image");
 			  img=document.getElementById('images')
 			  img.src = 'data:image/jpeg;base64,' + data;
 			});

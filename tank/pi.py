@@ -49,51 +49,51 @@ class tankpi:
   def forward(self):
     self.logger.debug('move tank forward')
     if self.speed == 0:
-      self.setspeed(50)
+      self.setspeed(90)
     self.rightforward()
     self.leftforward()
 
   def backward(self):
     self.logger.debug('move tank forward')
     if self.speed == 0:
-      self.setspeed(50)
+      self.setspeed(90)
     self.rightbackward()
     self.leftbackward()
 
   def right(self):
     self.logger.debug('move tank forward')
     if self.speed == 0:
-      self.setspeed(50)
+      self.setspeed(90)
     self.rightbackward()
     self.leftforward()
 
   def left(self):
     self.logger.debug('move tank forward')
     if self.speed == 0:
-      self.setspeed(50)
+      self.setspeed(90)
     self.rightforward()
     self.leftbackward()
 
   def rightforward(self):
-    GPIO.output(self.out1,GPIO.LOW)
-    GPIO.output(self.out2,GPIO.HIGH)
-
-  def rightbackward(self):
     GPIO.output(self.out1,GPIO.HIGH)
     GPIO.output(self.out2,GPIO.LOW)
+
+  def rightbackward(self):
+    GPIO.output(self.out1,GPIO.LOW)
+    GPIO.output(self.out2,GPIO.HIGH)
 
   def rightstop(self):
     GPIO.output(self.out1,GPIO.LOW)
     GPIO.output(self.out2,GPIO.LOW)
 
   def leftbackward(self):
-    GPIO.output(self.out3,GPIO.HIGH)
-    GPIO.output(self.out4,GPIO.LOW)
+    GPIO.output(self.out3,GPIO.LOW)
+    GPIO.output(self.out4,GPIO.HIGH)
 
   def leftstop(self):
     GPIO.output(self.out3,GPIO.LOW)
     GPIO.output(self.out4,GPIO.LOW)
 
   def leftforward(self):
-    GPIO.output(self.out3,GPIO.LOW)
-    GPIO.output(self.out4,GPIO.HIGH)
+    GPIO.output(self.out3,GPIO.HIGH)
+    GPIO.output(self.out4,GPIO.LOW)
