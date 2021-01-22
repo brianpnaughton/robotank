@@ -32,9 +32,9 @@ class ImageCapture(Thread):
 
     # load COCO labels
     self.labels = {}
-    self.load_labels("/tmp/coco_labels.txt")
+    self.load_labels("./models/coco_labels.txt")
     # init the tf interpreter
-    self.interpreter = Interpreter("/tmp/detect.tflite")
+    self.interpreter = Interpreter("./models/detect.tflite")
     self.interpreter.allocate_tensors()
     _, self.input_height, self.input_width, _ = self.interpreter.get_input_details()[0]['shape']
 
